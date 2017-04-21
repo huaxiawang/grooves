@@ -15,7 +15,7 @@ class BootStrap {
     }
 
     private Patient createJohnLennon() {
-        def patient = new Patient(uniqueId: '42').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'JL001').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'John Lennon')
@@ -35,7 +35,7 @@ class BootStrap {
     }
 
     private Patient createRingoStarr() {
-        def patient = new Patient(uniqueId: '43').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'RS042').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'Ringo Starr')
@@ -55,7 +55,7 @@ class BootStrap {
     }
 
     private Patient createPaulMcCartney() {
-        def patient = new Patient(uniqueId: '44').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'PMC02').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'Paul McCartney')
@@ -84,8 +84,8 @@ class BootStrap {
     }
 
     private Patient createGeorgeHarrison() {
-        def patient = new Patient(uniqueId: '45').save(flush: true, failOnError: true)
-        def patient2 = new Patient(uniqueId: '46').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'GH009').save(flush: true, failOnError: true)
+        def patient2 = new Patient(uniqueId: 'GH017').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'George Harrison')

@@ -3,10 +3,8 @@ package grooves.grails.mongo
 import com.github.rahulsom.grooves.test.AbstractPatientSpec
 import grails.test.mixin.integration.Integration
 import groovyx.net.http.ContentType
-import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
 import org.springframework.beans.factory.annotation.Value
-import spock.lang.IgnoreRest
 import spock.lang.Unroll
 
 @Integration
@@ -32,7 +30,7 @@ class PatientSpec extends AbstractPatientSpec {
         }
         with(resp.data) {
             it.aggregateId == id
-            it.joinedIds == patients.collect { it + 5 }
+            it.joinedIds == patients.collect { it + 7 }
             it.lastEventPosition == lastEventPosition
         }
 
@@ -54,7 +52,7 @@ class PatientSpec extends AbstractPatientSpec {
         }
         with(resp.data) {
             it.aggregateId == id
-            it.joinedIds == patients.collect { it + 5 }
+            it.joinedIds == patients.collect { it + 7 }
             it.lastEventPosition == version
         }
 

@@ -18,10 +18,18 @@ class BootStrap {
         def santanaRow = on(new Zipcode(uniqueId: '95128').save(flush: true, failOnError: true)) {
             apply new ZipcodeCreated(name: 'Santana Row, San Jose, California', timestamp: date(START_DATE))
         }
+
         createJohnLennon()
         createRingoStarr()
         createPaulMcCartney()
         createGeorgeHarrison()
+
+        def tina = createTinaFey()
+        def sarah = createSarahPalin()
+        currDate += 1
+        def mergeEvent = merge(tina, sarah)
+        currDate += 1
+        revert(mergeEvent, mergeEvent.converse)
 
         linkZipcodesAndPatients(campbell, santanaRow)
         linkZipcodesAndDoctors(campbell, santanaRow)
@@ -123,7 +131,7 @@ class BootStrap {
     }
 
     private Patient createJohnLennon() {
-        def patient = new Patient(uniqueId: '42').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'JL001').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'John Lennon')
@@ -143,7 +151,7 @@ class BootStrap {
     }
 
     private Patient createRingoStarr() {
-        def patient = new Patient(uniqueId: '43').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'RS042').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'Ringo Starr')
@@ -163,7 +171,7 @@ class BootStrap {
     }
 
     private Patient createPaulMcCartney() {
-        def patient = new Patient(uniqueId: '44').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'PMC02').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'Paul McCartney')
@@ -192,8 +200,8 @@ class BootStrap {
     }
 
     private Patient createGeorgeHarrison() {
-        def patient = new Patient(uniqueId: '45').save(flush: true, failOnError: true)
-        def patient2 = new Patient(uniqueId: '46').save(flush: true, failOnError: true)
+        def patient = new Patient(uniqueId: 'GH009').save(flush: true, failOnError: true)
+        def patient2 = new Patient(uniqueId: 'GH017').save(flush: true, failOnError: true)
 
         on(patient) {
             apply new PatientCreated(name: 'George Harrison')
@@ -212,9 +220,37 @@ class BootStrap {
             snapshotWith new PatientHealthQuery()
         }
 
-        currDate += 1;
+        currDate += 1
         merge(patient, patient2)
         patient
+    }
+
+    private Patient createTinaFey() {
+        def patient = new Patient(uniqueId: 'TF420').save(flush: true, failOnError: true)
+
+        on(patient) {
+            apply new PatientCreated(name: 'Tina Fey')
+            apply new ProcedurePerformed(code: 'FLUSHOT', cost: 32.40)
+            apply new ProcedurePerformed(code: 'GLUCOSETEST', cost: 78.93)
+            apply new PaymentMade(amount: 100.25)
+
+            snapshotWith new PatientAccountQuery()
+            snapshotWith new PatientHealthQuery()
+
+        }
+    }
+
+    private Patient createSarahPalin() {
+        def patient = new Patient(uniqueId: 'SP101').save(flush: true, failOnError: true)
+
+        on(patient) {
+            apply new PatientCreated(name: 'Sarah Palin')
+            apply new ProcedurePerformed(code: 'ANNUALPHYSICAL', cost: 170.00)
+            apply new PaymentMade(amount: 180.00)
+
+            snapshotWith new PatientAccountQuery()
+            snapshotWith new PatientHealthQuery()
+        }
     }
 
     /**
@@ -231,6 +267,12 @@ class BootStrap {
         e1.converse = e2
         e2.save(flush: true, failOnError: true)
         e2.converse
+    }
+
+    private void revert(PatientEvent... events) {
+        events.each { event ->
+            on (event.aggregate) { apply new PatientEventReverted(revertedEventId: event.id) }
+        }
     }
 
     Date currDate = Date.parse('yyyy-MM-dd', START_DATE)

@@ -30,7 +30,7 @@ class BootStrap implements InitializingBean {
     }
 
     private Patient createJohnLennon() {
-        def patient = patientRepository.save(new Patient(uniqueId: '42'))
+        def patient = patientRepository.save(new Patient(uniqueId: 'JL001'))
 
         on(patient) {
             apply new PatientCreated(name: 'John Lennon')
@@ -50,7 +50,7 @@ class BootStrap implements InitializingBean {
     }
 
     private Patient createRingoStarr() {
-        def patient = patientRepository.save(new Patient(uniqueId: '43'))
+        def patient = patientRepository.save(new Patient(uniqueId: 'RS042'))
 
         on(patient) {
             apply new PatientCreated(name: 'Ringo Starr')
@@ -70,7 +70,7 @@ class BootStrap implements InitializingBean {
     }
 
     private Patient createPaulMcCartney() {
-        def patient = patientRepository.save(new Patient(uniqueId: '44'))
+        def patient = patientRepository.save(new Patient(uniqueId: 'PMC02'))
 
         on(patient) {
             apply new PatientCreated(name: 'Paul McCartney')
@@ -99,8 +99,8 @@ class BootStrap implements InitializingBean {
     }
 
     private Patient createGeorgeHarrison() {
-        def patient = patientRepository.save(new Patient(uniqueId: '45'))
-        def patient2 = patientRepository.save(new Patient(uniqueId: '46'))
+        def patient = patientRepository.save(new Patient(uniqueId: 'GH009'))
+        def patient2 = patientRepository.save(new Patient(uniqueId: 'GH017'))
 
         on(patient) {
             apply new PatientCreated(name: 'George Harrison')

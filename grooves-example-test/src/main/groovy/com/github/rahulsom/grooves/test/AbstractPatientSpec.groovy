@@ -2,6 +2,7 @@ package com.github.rahulsom.grooves.test
 
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -16,7 +17,7 @@ abstract class AbstractPatientSpec extends Specification {
 
     void "Patient List works"() {
         when:
-        def resp = rest.get(path: '/patient.json')
+        def resp = rest.get(path: '/patient.json') as HttpResponseDecorator
 
         then:
         with(resp) {
@@ -24,15 +25,20 @@ abstract class AbstractPatientSpec extends Specification {
             contentType == "application/json"
         }
         with(resp.data) {
-            it[0].uniqueId == '42'
-            it[1].uniqueId == '43'
+            it[0].uniqueId == 'JL001'
+            it[1].uniqueId == 'RS042'
+            it[2].uniqueId == 'PMC02'
+            it[3].uniqueId == 'GH009'
+            it[4].uniqueId == 'GH017'
+            it[5].uniqueId == 'TF420'
+            it[6].uniqueId == 'SP101'
         }
     }
 
     @Unroll
     void "Paul McCartney's balance is correct at version #version"() {
         given:
-        def resp = rest.get(path: "/patient/account/3.json".toString(), params: [version: version])
+        def resp = rest.get(path: "/patient/account/3.json".toString(), params: [version: version]) as HttpResponseDecorator
 
         expect:
         with(resp) {
@@ -60,7 +66,7 @@ abstract class AbstractPatientSpec extends Specification {
     @Unroll
     void "#name - Show works"() {
         given:
-        def resp = rest.get(path: "/patient/show/${id}.json".toString())
+        def resp = rest.get(path: "/patient/show/${id}.json".toString()) as HttpResponseDecorator
 
         expect:
         with(resp) {
@@ -74,14 +80,14 @@ abstract class AbstractPatientSpec extends Specification {
 
         where:
         id | name          || uniqueId
-        1  | 'John Lennon' || '42'
-        2  | 'Ringo Starr' || '43'
+        1  | 'John Lennon' || 'JL001'
+        2  | 'Ringo Starr' || 'RS042'
     }
 
     @Unroll
     void "#name - Health works"() {
         given:
-        def resp = rest.get(path: "/patient/health/${id}.json".toString())
+        def resp = rest.get(path: "/patient/health/${id}.json".toString()) as HttpResponseDecorator
         println resp.data
 
         expect:
@@ -90,7 +96,7 @@ abstract class AbstractPatientSpec extends Specification {
             contentType == "application/json"
         }
         with(resp.data) {
-            it.aggregateId == id || it.aggregate.id == id
+            it.aggregateId == id || it.aggregate?.id == id
             it.name == name
             it.lastEventPosition == lastEventPosition
             it.procedures.size() == codes.size()
@@ -107,7 +113,7 @@ abstract class AbstractPatientSpec extends Specification {
     @Unroll
     void "#name by Version #version - Health works"() {
         given:
-        def resp = rest.get(path: "/patient/health/${id}.json".toString(), query: [version: version])
+        def resp = rest.get(path: "/patient/health/${id}.json".toString(), query: [version: version]) as HttpResponseDecorator
         println resp.data
 
         expect:
@@ -116,7 +122,7 @@ abstract class AbstractPatientSpec extends Specification {
             contentType == "application/json"
         }
         with(resp.data) {
-            it.aggregateId == id || it.aggregate.id == id
+            it.aggregateId == id || it.aggregate?.id == id
             it.name == name
             it.lastEventPosition == version
             it.procedures.size() == codes.size()
@@ -142,7 +148,7 @@ abstract class AbstractPatientSpec extends Specification {
     @Unroll
     def "#name by Date #date - Health works"() {
         given:
-        def resp = rest.get(path: "/patient/health/${id}.json".toString(), query: [date: date])
+        def resp = rest.get(path: "/patient/health/${id}.json".toString(), query: [date: date]) as HttpResponseDecorator
         println resp.data
 
         expect:
@@ -151,7 +157,7 @@ abstract class AbstractPatientSpec extends Specification {
             contentType == "application/json"
         }
         with(resp.data) {
-            it.aggregateId == id || it.aggregate.id == id
+            it.aggregateId == id || it.aggregate?.id == id
             it.name == name
             it.lastEventPosition == lastEventPosition
             it.procedures.size() == codes.size()
@@ -167,11 +173,10 @@ abstract class AbstractPatientSpec extends Specification {
         3  | '2016-01-18' || 5                 | 'Paul McCartney' | ['ANNUALPHYSICAL']
     }
 
-
     @Unroll
     void "George Harrison's balance is correct at version #version"() {
         given:
-        def resp = rest.get(path: "/patient/account/4.json".toString(), params: [version: version])
+        def resp = rest.get(path: "/patient/account/4.json".toString(), params: [version: version]) as HttpResponseDecorator
 
         expect:
         with(resp) {
@@ -182,7 +187,7 @@ abstract class AbstractPatientSpec extends Specification {
             it.balance == balance
             it.moneyMade == moneyMade
             it.deprecatesIds == deprecatedIds || it.deprecates*.id == deprecatedIds
-            it.aggregateId == aggregateId || it.aggregate.id == aggregateId
+            it.aggregateId == aggregateId || it.aggregate?.id == aggregateId
         }
 
         where:
@@ -194,9 +199,63 @@ abstract class AbstractPatientSpec extends Specification {
     }
 
     @Unroll
+    void "Tina Feys's balance is correct at version #version"() {
+        given:
+        def resp = rest.get(path: "/patient/account/6.json".toString(), params: [version: version]) as HttpResponseDecorator
+
+        expect:
+        with(resp) {
+            status == 200
+            contentType == "application/json"
+        }
+        with(resp.data) {
+            it.balance == balance
+            it.moneyMade == moneyMade
+            it.deprecatesIds == deprecatedIds || it.deprecates*.id == deprecatedIds
+            it.aggregateId == aggregateId || it.aggregate?.id == aggregateId
+        }
+
+        where:
+        version || balance | moneyMade | aggregateId | deprecatedIds | name
+        1       || 0.0     | 0.0       | 6           | null          | 'Tina Fey'
+        2       || 32.40   | 0.0       | 6           | null          | 'Tina Fey'
+        3       || 111.33  | 0.0       | 6           | null          | 'Tina Fey'
+        4       || 11.08   | 100.25    | 6           | null          | 'Tina Fey'
+        5       || -10.00  | 180.00    | 7           | [6]           | 'Sarah Palin'
+        6       || 11.08   | 100.25    | 6           | null          | 'Tina Fey'
+    }
+
+    @Unroll
+    @IgnoreRest
+    void "Sarah Palin's balance is correct at version #version"() {
+        given:
+        def resp = rest.get(path: "/patient/account/7.json".toString(), params: [version: version]) as HttpResponseDecorator
+
+        expect:
+        with(resp) {
+            status == 200
+            contentType == "application/json"
+        }
+        with(resp.data) {
+            it.balance == balance
+            it.moneyMade == moneyMade
+            it.deprecatesIds == deprecatedIds || it.deprecates*.id == deprecatedIds
+            it.aggregateId == aggregateId || it.aggregate?.id == aggregateId
+        }
+
+        where:
+        version || balance | moneyMade | aggregateId | deprecatedIds | name
+//        1       || 0.0     | 0.0       | 7           | null          | 'Sarah Palin'
+//        2       || 170.0   | 0.0       | 7           | null          | 'Sarah Palin'
+//        3       || -10.0   | 180.00    | 7           | null          | 'Sarah Palin'
+        4       || 148.68  | 100.25    | 5           | null          | 'Sarah Palin'
+//        5       || -10.0   | 180.0     | 7           | null          | 'Sarah Palin'
+    }
+
+    @Unroll
     void "George Harrison MBE's balance is correct at version #version"() {
         given:
-        def resp = rest.get(path: "/patient/account/5.json".toString(), params: [version: version])
+        def resp = rest.get(path: "/patient/account/5.json".toString(), params: [version: version]) as HttpResponseDecorator
 
         expect:
         with(resp) {
@@ -220,7 +279,7 @@ abstract class AbstractPatientSpec extends Specification {
         HttpResponseDecorator resp = null
 
         when:
-        resp = rest.get(path: "/patient/account/5.json".toString())
+        resp = rest.get(path: "/patient/account/5.json".toString()) as HttpResponseDecorator
 
         then:
         with(resp) {
@@ -228,7 +287,7 @@ abstract class AbstractPatientSpec extends Specification {
             contentType == "application/json"
         }
         with(resp.data) {
-            it.aggregateId == 5 || it.aggregate.id == 5
+            it.aggregateId == 5 || it.aggregate?.id == 5
             it.deprecatesIds == [4] || it.deprecates*.id == [4]
             it.balance == 148.68
             it.moneyMade == 100.25
@@ -237,7 +296,7 @@ abstract class AbstractPatientSpec extends Specification {
         }
 
         when:
-        resp = rest.get(path: "/patient/account/4.json".toString())
+        resp = rest.get(path: "/patient/account/4.json".toString()) as HttpResponseDecorator
 
         then:
         with(resp) {
@@ -245,7 +304,7 @@ abstract class AbstractPatientSpec extends Specification {
             contentType == "application/json"
         }
         with(resp.data) {
-            it.aggregateId == 5 || it.aggregate.id == 5
+            it.aggregateId == 5 || it.aggregate?.id == 5
             it.deprecatesIds == [4] || it.deprecates*.id == [4]
             it.balance == 148.68
             it.moneyMade == 100.25
